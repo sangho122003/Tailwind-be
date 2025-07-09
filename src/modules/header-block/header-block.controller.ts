@@ -34,9 +34,7 @@ export class HeaderBlockController {
       storage: diskStorage({
         destination: './uploads/header-blocks',
         filename: (req, file, cb) => {
-          const uniqueName = `${Date.now()}-${Math.round(
-            Math.random() * 1e9,
-          )}${extname(file.originalname)}`;
+          const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`;
           cb(null, uniqueName);
         },
       }),
@@ -47,17 +45,14 @@ export class HeaderBlockController {
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
+        file: { type: 'string', format: 'binary' },
         title: { type: 'string' },
         title2: { type: 'string' },
         ID_page: { type: 'number' },
       },
     },
   })
-  @ApiOperation({ summary: 'Tạo HeaderBlock kèm ảnh' })
+  @ApiOperation({ summary: 'Create a HeaderBlock with image' })
   create(
     @Body() dto: CreateHeaderBlockDto,
     @UploadedFile() file: Express.Multer.File,
@@ -65,34 +60,45 @@ export class HeaderBlockController {
     return this.headerBlockService.create(dto, file?.filename);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Lấy tất cả HeaderBlocks' })
-  findAll() {
-    return this.headerBlockService.findAll();
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Lấy HeaderBlock theo ID' })
-  @ApiParam({ name: 'id', required: true })
-  findOne(@Param('id') id: string) {
-    return this.headerBlockService.findOne(+id);
-  }
-
   @Get('/page/:pageId')
-  @ApiOperation({ summary: 'Lấy HeaderBlock theo Page ID' })
   @ApiParam({ name: 'pageId', required: true })
   findByPage(@Param('pageId') pageId: string) {
     return this.headerBlockService.findByPageId(+pageId);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật HeaderBlock' })
-  update(@Param('id') id: string, @Body() dto: UpdateHeaderBlockDto) {
-    return this.headerBlockService.update(+id, dto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/header-blocks',
+        filename: (req, file, cb) => {
+          const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`;
+          cb(null, uniqueName);
+        },
+      }),
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        title: { type: 'string' },
+        title2: { type: 'string' },
+        ID_page: { type: 'number' },
+      },
+    },
+  })
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateHeaderBlockDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.headerBlockService.update(+id, dto, file?.filename);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Xoá HeaderBlock' })
   remove(@Param('id') id: string) {
     return this.headerBlockService.remove(+id);
   }

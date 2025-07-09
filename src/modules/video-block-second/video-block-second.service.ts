@@ -5,6 +5,7 @@ import { VideoBlockSecond } from '@/entities/video-block-second.entity';
 import { Page } from '@/entities/page.entity';
 import { CreateVideoBlockSecondDto } from './dto/create-video-block-second.dto';
 import { UpdateVideoBlockSecondDto } from './dto/update-video-block-second.dto';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class VideoBlockSecondService {
@@ -24,7 +25,7 @@ export class VideoBlockSecondService {
   }
   async findByPage(pageId: number) {
     const page = await this.pageRepo.findOneBy({ id: pageId });
-    if (!page) throw new Error(`Page with ID ${pageId} not found`);
+    if (!page) throw new Error(ERORR.PAGE_NOT_FOUND);
 
     return this.videoRepo.find({
       where: { page: { id: pageId } },
@@ -34,7 +35,7 @@ export class VideoBlockSecondService {
 
   async create(dto: CreateVideoBlockSecondDto) {
     const page = await this.pageRepo.findOneBy({ id: dto.ID_page });
-    if (!page) throw new Error('Page not found');
+    if (!page) throw new Error(ERORR.PAGE_NOT_FOUND);
 
     const newBlock = this.videoRepo.create({
       url: this.transformYoutubeUrl(dto.url),
@@ -43,18 +44,9 @@ export class VideoBlockSecondService {
 
     return this.videoRepo.save(newBlock);
   }
-
-  findAll() {
-    return this.videoRepo.find({ relations: ['page'] });
-  }
-
-  findOne(id: number) {
-    return this.videoRepo.findOne({ where: { id }, relations: ['page'] });
-  }
-
   async update(id: number, dto: UpdateVideoBlockSecondDto) {
     const block = await this.videoRepo.findOne({ where: { id }, relations: ['page'] });
-    if (!block) throw new Error('VideoBlockSecond not found');
+    if (!block) throw new Error(ERORR.PAGE_NOT_FOUND);
 
     if (dto.url) {
       dto.url = this.transformYoutubeUrl(dto.url);
@@ -62,7 +54,7 @@ export class VideoBlockSecondService {
 
     if (dto.ID_page) {
       const newPage = await this.pageRepo.findOneBy({ id: dto.ID_page });
-      if (!newPage) throw new Error('New Page not found');
+      if (!newPage) throw new Error(ERORR.PAGE_NOT_FOUND);
       block.page = newPage;
     }
 

@@ -14,7 +14,8 @@ export class BenefitsBlockService {
     private itemRepo: Repository<BenefitItem>,
     @InjectRepository(Page)
     private pageRepo: Repository<Page>,
-  ) { }
+  ) {}
+
   async findByPageId(pageId: number) {
     const page = await this.pageRepo.findOneBy({ id: pageId });
     if (!page) {
@@ -27,6 +28,51 @@ export class BenefitsBlockService {
     });
 
     return blocks;
+  }
+
+  async updateBlockWithItems(id: number, data: {
+    title: string;
+    items: { title: string; description: string }[];
+    images: Express.Multer.File[];
+  }) {
+    const block = await this.blockRepo.findOne({
+      where: { id },
+      relations: ['items'],
+    });
+
+    if (!block) throw new Error('Block not found');
+
+    block.title = data.title;
+    await this.blockRepo.save(block);
+
+    await this.itemRepo.delete({ block: { id } });
+
+    const itemEntities = data.items.map((item, index) =>
+      this.itemRepo.create({
+        title: item.title,
+        description: item.description,
+        image: `/uploads/benefits/${data.images[index].filename}`,
+        block,
+      }),
+    );
+
+    await this.itemRepo.save(itemEntities);
+
+    return {
+      message: 'Update successful',
+      block,
+      items: itemEntities,
+    };
+  }
+
+  async removeBlock(id: number) {
+    const block = await this.blockRepo.findOne({ where: { id } });
+    if (!block) throw new Error('Block not found');
+
+    await this.itemRepo.delete({ block: { id } });
+    await this.blockRepo.delete(id);
+
+    return { message: 'Deleted successfully' };
   }
 
   async createBlockWithItems(data: {

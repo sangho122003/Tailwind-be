@@ -5,6 +5,7 @@ import { VideoBlock } from '@/entities/video-block.entity';
 import { CreateVideoBlockDto } from './dto/create-video-block.dto';
 import { UpdateVideoBlockDto } from './dto/update-video-block.dto';
 import { Page } from '@/entities/page.entity';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class VideoBlockService {
@@ -24,7 +25,7 @@ export class VideoBlockService {
 
   async create(dto: CreateVideoBlockDto) {
     const page = await this.pageRepo.findOneBy({ id: dto.ID_page });
-    if (!page) throw new NotFoundException('Page not found');
+    if (!page) throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
 
     const newBlock = this.videoRepo.create({
       urlvideo: this.transformYoutubeUrl(dto.urlvideo),
@@ -34,14 +35,6 @@ export class VideoBlockService {
     });
 
     return this.videoRepo.save(newBlock);
-  }
-
-  findAll() {
-    return this.videoRepo.find({ relations: ['page'] });
-  }
-
-  findOne(id: number) {
-    return this.videoRepo.findOne({ where: { id }, relations: ['page'] });
   }
 
   async findByPageId(pageId: number) {

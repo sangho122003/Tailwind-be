@@ -1,8 +1,7 @@
-// ✅ Đúng: export plain config object
 import { DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 
-config(); // load từ .env
+config(); 
 
 const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',

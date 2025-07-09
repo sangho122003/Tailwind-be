@@ -5,6 +5,7 @@ import { Page } from 'src/entities/page.entity';
 import { Repository } from 'typeorm';
 import { CreateValueBlockDto } from './dto/create-value-block.dto';
 import { UpdateValueBlockDto } from './dto/update-value-block.dto';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class ValueBlockService {
@@ -19,7 +20,7 @@ export class ValueBlockService {
   async create(dto: CreateValueBlockDto, file: Express.Multer.File) {
     const page = await this.pageRepo.findOneBy({ id: dto.pageId });
     if (!page) {
-      throw new NotFoundException(`Page with ID ${dto.pageId} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
 
     const newBlock = this.valueBlockRepo.create({
@@ -31,23 +32,10 @@ export class ValueBlockService {
 
     return this.valueBlockRepo.save(newBlock);
   }
-
-  async findAll() {
-    return this.valueBlockRepo.find();
-  }
-
-  async findOne(id: number) {
-    const block = await this.valueBlockRepo.findOne({ where: { id } });
-    if (!block) {
-      throw new NotFoundException(`ValueBlock with ID ${id} not found`);
-    }
-    return block;
-  }
-
   async update(id: number, dto: UpdateValueBlockDto, file?: Express.Multer.File) {
     const block = await this.valueBlockRepo.findOneBy({ id });
     if (!block) {
-      throw new NotFoundException(`ValueBlock with ID ${id} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
 
     if (file) block.image = '/uploads/value-blocks/' + file.filename;
@@ -57,7 +45,7 @@ export class ValueBlockService {
     if (dto.pageId !== undefined) {
       const page = await this.pageRepo.findOneBy({ id: dto.pageId });
       if (!page) {
-        throw new NotFoundException(`Page with ID ${dto.pageId} not found`);
+        throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
       }
       block.page = page;
     }
@@ -68,11 +56,11 @@ export class ValueBlockService {
   async findByPageId(pageId: number) {
     const page = await this.pageRepo.findOneBy({ id: pageId });
     if (!page) {
-      throw new NotFoundException(`Page with ID ${pageId} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
 
     const blocks = await this.valueBlockRepo.find({
-      where: { page: { id: pageId } }, // KHÔNG cần relations nữa
+      where: { page: { id: pageId } }, 
     });
 
     return blocks;
@@ -82,7 +70,7 @@ export class ValueBlockService {
   async remove(id: number) {
     const result = await this.valueBlockRepo.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`ValueBlock with ID ${id} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
     return { message: `Deleted ValueBlock with ID ${id}` };
   }

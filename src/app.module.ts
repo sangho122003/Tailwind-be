@@ -7,7 +7,6 @@ import {
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthMiddleware } from './middlewares/jwt-auth.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './modules/user/user.module';
 import { HeaderBlockModule } from './modules/header-block/header-block.module';
 import { PageModule } from './modules/page/page.module';
 import { SubtractModule } from './modules/subtract/subtract.module';
@@ -19,7 +18,6 @@ import { BenefitsBlockModule } from './modules/benefits-block/benefits-block.mod
 import { IndexModule } from './modules/index/index.module';
 import { AuthModule } from './modules/auth/auth.module';
 import typeormConfig from './config/typeorm.config';
-
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeormConfig),
@@ -27,17 +25,16 @@ import typeormConfig from './config/typeorm.config';
       secret: 'access-secret',
       signOptions: { expiresIn: '15m' },
     }),
-    UserModule,
-    HeaderBlockModule,
+    IndexModule,
+    AuthModule,
     PageModule,
-    SubtractModule,
-    TestimonialModule,
-    VideoBlockSecondModule,
+    HeaderBlockModule,
     VideoBlockModule,
     ValueBlockModule,
     BenefitsBlockModule,
-    IndexModule,
-    AuthModule,
+    SubtractModule,
+    TestimonialModule,
+    VideoBlockSecondModule,
   ],
 })
 export class AppModule implements NestModule {

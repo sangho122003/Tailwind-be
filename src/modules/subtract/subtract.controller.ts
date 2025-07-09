@@ -9,6 +9,7 @@ import { SubtractService } from './subtract.service';
 import { CreateSubtractDto } from './dto/create-subtract.dto';
 import { UpdateSubtractDto } from './dto/update-subtract.dto';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ERORR } from '@/constants/message';
 
 @ApiTags('Subtract')
 @Controller('subtract')
@@ -41,20 +42,13 @@ export class SubtractController {
     @Body() body: CreateSubtractDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) throw new BadRequestException('File image is required');
+    if (!file) throw new BadRequestException(ERORR.FILE_IMAGE_REQUIRED);
     return this.subtractService.create(body, file);
   }
-
-  @Get()
-  findAll() {
-    return this.subtractService.findAll();
+  @Get('page/:pageId')
+  getByPage(@Param('pageId') pageId: string) {
+    return this.subtractService.findByPage(+pageId);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subtractService.findOne(+id);
-  }
-
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
@@ -72,10 +66,7 @@ export class SubtractController {
   ) {
     return this.subtractService.update(+id, body, file);
   }
-  @Get('page/:pageId')
-  getByPage(@Param('pageId') pageId: string) {
-    return this.subtractService.findByPage(+pageId);
-  }
+
 
   @Delete(':id')
   remove(@Param('id') id: string) {

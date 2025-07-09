@@ -4,12 +4,14 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@/entities/user.entity';
+import { AUTH_MESSAGES } from '@/constants/message';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   async register(name: string, email: string, password: string) {
@@ -24,8 +26,9 @@ export class AuthService {
       select: ['id', 'email', 'password'],
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+    const isValid = user && (await bcrypt.compare(password, user.password));
+    if (!isValid) {
+      throw new UnauthorizedException(AUTH_MESSAGES.INVALID_CREDENTIALS);
     }
 
     const payload = { sub: user.id, email: user.email };
@@ -49,22 +52,26 @@ export class AuthService {
         secret: 'refresh-secret',
       });
 
-      const newAccessToken = this.jwtService.sign(
+      const access_token = this.jwtService.sign(
         { sub: payload.sub, email: payload.email },
         { secret: 'access-secret', expiresIn: '15m' },
       );
 
-      return { access_token: newAccessToken };
-    } catch (err) {
-      throw new UnauthorizedException('Invalid refresh token');
+      return { access_token };
+    } catch {
+      throw new UnauthorizedException(AUTH_MESSAGES.INVALID_REFRESH_TOKEN);
     }
   }
 
   async getMe(userPayload: { sub: number; email: string }) {
-    if (!userPayload?.sub) throw new UnauthorizedException('Missing token payload');
+    if (!userPayload?.sub) {
+      throw new UnauthorizedException(AUTH_MESSAGES.MISSING_TOKEN_PAYLOAD);
+    }
 
     const user = await this.userRepo.findOne({ where: { id: userPayload.sub } });
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) {
+      throw new UnauthorizedException(AUTH_MESSAGES.USER_NOT_FOUND);
+    }
 
     return { name: user.name };
   }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePageDto {
-  @ApiProperty({ example: 'Pharmacy' })
+  @ApiProperty({ example: 'PHARMACY' })
   name: string;
 
   @ApiProperty({ example: 'pharmacy' })

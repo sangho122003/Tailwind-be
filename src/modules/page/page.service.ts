@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Page } from '@/entities/page.entity';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class PageService {
@@ -46,7 +47,7 @@ export class PageService {
     });
 
     if (!page) {
-      throw new NotFoundException(`Page with ID ${id} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
 
     return page;
@@ -54,13 +55,13 @@ export class PageService {
 
   async update(id: number, updatePageDto: UpdatePageDto) {
     await this.pageRepository.update(id, updatePageDto);
-    return this.findOne(id); // trả về bản ghi mới
+    return this.findOne(id); 
   }
 
   async remove(id: number) {
     const page = await this.pageRepository.findOneBy({ id });
     if (!page) {
-      throw new NotFoundException(`Page with ID ${id} not found`);
+      throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
     }
     return this.pageRepository.remove(page);
   }

@@ -39,16 +39,6 @@ export class ValueBlockController {
     return this.valueBlockService.create(body, file);
   }
 
-  @Get()
-  findAll() {
-    return this.valueBlockService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.valueBlockService.findOne(+id);
-  }
-
   @Get('/page/:pageId')
   getByPage(@Param('pageId') pageId: string) {
     return this.valueBlockService.findByPageId(+pageId);

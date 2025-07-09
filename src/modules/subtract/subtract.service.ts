@@ -5,6 +5,7 @@ import { Page } from '@/entities/page.entity';
 import { Repository } from 'typeorm';
 import { CreateSubtractDto } from './dto/create-subtract.dto';
 import { UpdateSubtractDto } from './dto/update-subtract.dto';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class SubtractService {
@@ -18,10 +19,10 @@ export class SubtractService {
 
   async create(dto: CreateSubtractDto, file: Express.Multer.File) {
     const page = await this.pageRepo.findOneBy({ id: dto.pageId });
-    if (!page) throw new NotFoundException('Page not found');
+    if (!page) throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
 
     const subtract = this.subtractRepo.create({
-      image: file.filename,
+      image:'/uploads/subtracts/'+ file.filename,
       title: dto.title,
       dis: dto.dis,
       page,
@@ -31,7 +32,7 @@ export class SubtractService {
   }
   async findByPage(pageId: number) {
     const page = await this.pageRepo.findOneBy({ id: pageId });
-    if (!page) throw new NotFoundException(`Page with ID ${pageId} not found`);
+    if (!page) throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
 
     return this.subtractRepo.find({
       where: { page: { id: pageId } },
@@ -39,19 +40,10 @@ export class SubtractService {
     });
   }
 
-  findAll() {
-    return this.subtractRepo.find({ relations: ['page'] });
-  }
-
-  async findOne(id: number) {
-    const subtract = await this.subtractRepo.findOne({ where: { id }, relations: ['page'] });
-    if (!subtract) throw new NotFoundException('Not found');
-    return subtract;
-  }
 
   async update(id: number, dto: UpdateSubtractDto, file?: Express.Multer.File) {
     const subtract = await this.subtractRepo.findOne({ where: { id }, relations: ['page'] });
-    if (!subtract) throw new NotFoundException('Not found');
+    if (!subtract) throw new NotFoundException(ERORR.NOT_FOUND);
 
     if (file) subtract.image = file.filename;
     if (dto.title !== undefined) subtract.title = dto.title;
@@ -59,7 +51,7 @@ export class SubtractService {
 
     if (dto.pageId) {
       const page = await this.pageRepo.findOneBy({ id: dto.pageId });
-      if (!page) throw new NotFoundException('Page not found');
+      if (!page) throw new NotFoundException(ERORR.PAGE_NOT_FOUND);
       subtract.page = page;
     }
 
@@ -68,7 +60,7 @@ export class SubtractService {
 
   async remove(id: number) {
     const subtract = await this.subtractRepo.findOneBy({ id });
-    if (!subtract) throw new NotFoundException('Not found');
+    if (!subtract) throw new NotFoundException(ERORR.NOT_FOUND);
     return this.subtractRepo.remove(subtract);
   }
 }

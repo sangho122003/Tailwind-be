@@ -14,20 +14,11 @@ export class VideoBlockSecondController {
     return this.videoBlockSecondService.create(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.videoBlockSecondService.findAll();
-  }
+
   @Get('page/:pageId')
   findByPage(@Param('pageId') pageId: string) {
     return this.videoBlockSecondService.findByPage(+pageId);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.videoBlockSecondService.findOne(+id);
-  }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateVideoBlockSecondDto) {
     return this.videoBlockSecondService.update(+id, dto);

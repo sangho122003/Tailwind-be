@@ -5,6 +5,7 @@ import { TestimonialBlock } from '@/entities/testimonial-block.entity';
 import { Page } from '@/entities/page.entity';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
+import { ERORR } from '@/constants/message';
 
 @Injectable()
 export class TestimonialService {
@@ -18,7 +19,7 @@ export class TestimonialService {
 
   async create(dto: CreateTestimonialDto) {
     const page = await this.pageRepo.findOneBy({ id: dto.ID_page });
-    if (!page) throw new Error('Page not found');
+    if (!page) throw new Error(ERORR.PAGE_NOT_FOUND);
 
     const testimonial = this.testimonialRepo.create({
       title: dto.title,
@@ -29,12 +30,10 @@ export class TestimonialService {
     return this.testimonialRepo.save(testimonial);
   }
 
-  findAll() {
-    return this.testimonialRepo.find({ relations: ['page'] });
-  }
+
   async findByPage(pageId: number) {
     const page = await this.pageRepo.findOneBy({ id: pageId });
-    if (!page) throw new Error(`Page with ID ${pageId} not found`);
+    if (!page) throw new Error(ERORR.PAGE_NOT_FOUND);
 
     return this.testimonialRepo.find({
       where: { page: { id: pageId } },
@@ -42,17 +41,13 @@ export class TestimonialService {
     });
   }
 
-  findOne(id: number) {
-    return this.testimonialRepo.findOne({ where: { id }, relations: ['page'] });
-  }
-
   async update(id: number, dto: UpdateTestimonialDto) {
     const testimonial = await this.testimonialRepo.findOne({ where: { id }, relations: ['page'] });
-    if (!testimonial) throw new Error('Testimonial not found');
+    if (!testimonial) throw new Error(ERORR.TESTIMONIAL_NOT_FOUND);
 
     if (dto.ID_page) {
       const newPage = await this.pageRepo.findOneBy({ id: dto.ID_page });
-      if (!newPage) throw new Error('New Page not found');
+      if (!newPage) throw new Error(ERORR.PAGE_NOT_FOUND);
       testimonial.page = newPage;
     }
 

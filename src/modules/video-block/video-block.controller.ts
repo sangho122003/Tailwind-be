@@ -22,16 +22,6 @@ export class VideoBlockController {
     return this.videoBlockService.create(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.videoBlockService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.videoBlockService.findOne(+id);
-  }
-
   @Get('page/:pageId')
   findByPage(@Param('pageId') pageId: string) {
     return this.videoBlockService.findByPageId(+pageId);
